@@ -80,4 +80,16 @@ public class FolderNode : INotifyPropertyChanged
 
         return $"{size:F2} {units[unitIndex]}";
     }
+
+    public void SortChildrenBySize()
+    {
+        // 按总大小倒序排序当前节点的子文件夹
+        Children.Sort((a, b) => b.Size.CompareTo(a.Size));
+
+        // 递归排序所有后代节点
+        foreach (var child in Children)
+        {
+            child.SortChildrenBySize();
+        }
+    }
 }

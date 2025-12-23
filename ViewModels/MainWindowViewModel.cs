@@ -125,6 +125,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
                     Dispatcher.UIThread.Post(() =>
                     {
                         RootNodes.Add(rootNode);
+                        rootNode.SortChildrenBySize();
                         var count = CountNodes(rootNode);
                         _folderCount = count;
                         OnPropertyChanged(nameof(FolderCountDisplay));
