@@ -26,19 +26,13 @@ public class UpdateViewModel
 
     public UpdateViewModel()
     {
-        // Initialize Sparkle updater with Avalonia UI factory
-        _sparkle = new SparkleUpdater(AppcastUrl, new AvaloniaUIFactory())
+        // Initialize Sparkle updater with no signature verification (for development only)
+        // TODO: Configure proper signature verification for production
+        _sparkle = new SparkleUpdater(AppcastUrl, null)
         {
-            UIFactory = new AvaloniaUIFactory(),
-            SecurityProtocolType = System.Net.SecurityProtocolType.Tls12
+            UIFactory = new UIFactory(),
+            RelaunchAfterUpdate = false
         };
-
-        // Set signature verifier for security (prevents tampering)
-        // Comment this out until you have a real key
-        // _sparkle.SignatureVerifier = new NetSparkleUpdater.SignatureVerifiers.Ed25519Validator(Ed25519PublicKey);
-
-        // Optional: Set user interaction settings
-        _sparkle.CheckForUpdatesAutomatically = true;
     }
 
     /// <summary>
@@ -58,7 +52,8 @@ public class UpdateViewModel
     {
         // Check for updates every 24 hours (default)
         // You can customize this interval: _sparkle.UpdateCheckInterval = TimeSpan.FromHours(12);
-        _sparkle.StartLoop();
+        // The 'true' parameter means do an initial check immediately on startup
+        _sparkle.StartLoop(true);
     }
 
     /// <summary>
