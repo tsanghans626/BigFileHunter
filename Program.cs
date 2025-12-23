@@ -1,12 +1,16 @@
-﻿// See https://aka.ms/new-console-template for more information
+using Avalonia;
 
-using BigFileHunter;
+namespace BigFileHunter;
 
-Console.WriteLine("请输入文件夹路径：");
-// /Users/tsanghans/Downloads
-var folderPath = Console.ReadLine();
+class Program
+{
+    [STAThread]
+    public static void Main(string[] args) => BuildAvaloniaApp()
+        .StartWithClassicDesktopLifetime(args);
 
-ScanService scanService = new();
-scanService.ScanDirectory(folderPath);
-scanService.PrintTopN();
-
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace();
+}

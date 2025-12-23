@@ -1,0 +1,135 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:BigFileHunter.ViewModels"
+        xmlns:models="using:BigFileHunter"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+        x:Class="BigFileHunter.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="大文件猎人 - BigFileHunter"
+        Width="900" Height="700"
+        MinWidth="700" MinHeight="500">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- Header - Folder Selection -->
+        <Border Grid.Row="0"
+                Background="#F5F5F5"
+                Padding="20"
+                BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1">
+            <StackPanel Spacing="12">
+                <TextBlock Text="选择要扫描的文件夹"
+                          FontWeight="Bold"
+                          FontSize="15"/>
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Column="0"
+                             Text="{Binding SelectedFolderPath}"
+                             Watermark="输入路径或点击浏览..."
+                             IsEnabled="{Binding !IsScanning}"/>
+                    <Button Grid.Column="1"
+                            Content="浏览..."
+                            Command="{Binding BrowseFolderCommand}"
+                            Margin="10,0,0,0"
+                            Padding="15,8"
+                            IsEnabled="{Binding !IsScanning}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Scan Controls -->
+        <Border Grid.Row="1"
+                Padding="20,15"
+                BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,*">
+                <Button Grid.Column="0"
+                        Content="开始扫描"
+                        Command="{Binding StartScanCommand}"
+                        IsEnabled="{Binding CanStartScan}"
+                        Padding="25,10"
+                        Margin="0,0,20,0"/>
+                <TextBlock Grid.Column="1"
+                          Text="{Binding StatusMessage}"
+                          VerticalAlignment="Center"
+                          Foreground="#555"/>
+                <TextBlock Grid.Column="2"
+                          Text="{Binding FolderCountDisplay}"
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Right"
+                          Foreground="#666"/>
+            </Grid>
+        </Border>
+
+        <!-- Results TreeView -->
+        <Border Grid.Row="2"
+                Padding="15"
+                BorderBrush="#E0E0E0"
+                BorderThickness="0">
+            <Grid>
+                <!-- Loading indicator -->
+                <Panel IsVisible="{Binding IsScanning}">
+                    <StackPanel HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Spacing="15">
+                        <ProgressBar IsIndeterminate="True"
+                                    Width="250"/>
+                        <TextBlock Text="正在扫描..."
+                                  HorizontalAlignment="Center"
+                                  FontSize="14"/>
+                    </StackPanel>
+                </Panel>
+
+                <!-- TreeView with results -->
+                <TreeView IsVisible="{Binding !IsScanning}"
+                         ItemsSource="{Binding RootNodes}"
+                         MinHeight="200">
+                    <TreeView.DataTemplates>
+                        <TreeDataTemplate ItemsSource="{Binding Children}"
+                                          x:DataType="models:FolderNode">
+                            <Grid ColumnDefinitions="300,150,150">
+                                <TextBlock Grid.Column="0"
+                                          Text="{Binding Name}"
+                                          TextTrimming="CharacterEllipsis"
+                                          ToolTip.Tip="{Binding FullPath}"/>
+                                <TextBlock Grid.Column="1"
+                                          Text="{Binding HDirectSize}"
+                                          Margin="15,0"
+                                          HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="2"
+                                          Text="{Binding HSize}"
+                                          Margin="15,0"
+                                          HorizontalAlignment="Right"
+                                          Foreground="#666666"
+                                          FontWeight="Bold"/>
+                            </Grid>
+                        </TreeDataTemplate>
+                    </TreeView.DataTemplates>
+                </TreeView>
+            </Grid>
+        </Border>
+
+        <!-- Footer - Legend -->
+        <Border Grid.Row="3"
+                Background="#F9F9F9"
+                Padding="20,12"
+                BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,Auto,Auto">
+                <TextBlock Grid.Column="0"
+                          Text="列说明："
+                          FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="1"
+                          Text="直接大小 - 仅当前文件夹内的文件"
+                          Margin="10,0,30,0"/>
+                <TextBlock Grid.Column="2"
+                          Text="总大小 - 包含所有子文件夹"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
