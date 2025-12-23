@@ -67,6 +67,32 @@ public class ScanService
         PrintNode(_rootNode, 0);
     }
 
+    public void PrintTopN(int n = 5)
+    {
+        if (_rootNode == null)
+        {
+            Console.WriteLine("请先运行扫描！");
+            return;
+        }
+
+        var allNodes = new List<(FolderNode node, int depth)>();
+        CollectNodes(_rootNode, 0, allNodes);
+
+        var topNodes = allNodes
+            .OrderByDescending(x => x.node.GetDirectSize())
+            .Take(n)
+            .ToList();
+
+        Console.WriteLine($"--- Top {topNodes.Count} 文件夹（按直接文件大小） ---");
+
+        int rank = 1;
+        foreach (var (node, _) in topNodes)
+        {
+            Console.WriteLine($"{rank}. {node.FullPath} - 直接文件: {node.GetHDirectSize()}");
+            rank++;
+        }
+    }
+
     private void PrintNode(FolderNode node, int indent)
     {
         // 1. 生成缩进字符串（每深一层多两个空格）
@@ -77,10 +103,20 @@ public class ScanService
         Console.WriteLine($"{space} |- {node.Name} ({node.getHSize()}");
 
         // 3. 递归打印所有子节点
-        // 进阶：可以先对 Children 按大小排序，这样打印出来就是“大头”在前
+        // 进阶：可以先对 Children 按大小排序，这样打印出来就是"大头"在前
         foreach (var child in node.Children.OrderByDescending(c => c.Size))
         {
             PrintNode(child, indent + 1);
+        }
+    }
+
+    private void CollectNodes(FolderNode node, int depth, List<(FolderNode node, int depth)> result)
+    {
+        result.Add((node, depth));
+
+        foreach (var child in node.Children)
+        {
+            CollectNodes(child, depth + 1, result);
         }
     }
 }

@@ -8,5 +8,5 @@ var folderPath = Console.ReadLine();
 
 ScanService scanService = new();
 scanService.ScanDirectory(folderPath);
-scanService.Print();
+scanService.PrintTopN();
 

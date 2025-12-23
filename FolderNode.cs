@@ -31,4 +31,24 @@ public class FolderNode
 
         return $"{size:F2} {units[unitIndex]}";
     }
+
+    public long GetDirectSize()
+    {
+        return Size - Children.Sum(c => c.Size);
+    }
+
+    public string GetHDirectSize()
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        double size = GetDirectSize();
+        int unitIndex = 0;
+
+        while (size >= 1024 && unitIndex < units.Length - 1)
+        {
+            size /= 1024;
+            unitIndex++;
+        }
+
+        return $"{size:F2} {units[unitIndex]}";
+    }
 }
