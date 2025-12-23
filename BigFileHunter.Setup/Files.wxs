@@ -2,9 +2,11 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Guid="*">
-        <!-- Include all files from publish directory using wildcard -->
-        <Files Source="$(var.PublishPath)\**\*" />
+      <Component Id="MainExecutable" Guid="*">
+        <File Source="$(var.PublishPath)\BigFileHunter.exe" KeyPath="yes" />
+        <Files Source="$(var.PublishPath)\*.dll" />
+        <Files Source="$(var.PublishPath)\*.json" />
+        <Files Source="$(var.PublishPath)\*.pdb" />
       </Component>
     </ComponentGroup>
   </Fragment>
@@ -12,7 +14,7 @@
   <Fragment>
     <ComponentGroup Id="ShortcutComponents">
       <!-- Start Menu Shortcut -->
-      <Component Guid="*" Directory="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcut" Guid="*" Directory="ApplicationProgramsFolder">
         <Shortcut Id="StartMenuShortcut"
                   Name="BigFileHunter"
                   Description="Scan directories to identify disk usage patterns"
@@ -28,12 +30,18 @@
       </Component>
 
       <!-- Desktop Shortcut -->
-      <Component Guid="*" Directory="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="*" Directory="DesktopFolder">
         <Shortcut Id="DesktopShortcut"
                   Name="BigFileHunter"
                   Description="Scan directories to identify disk usage patterns"
                   Target="[#BigFileHunter.exe]"
                   WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\BigFileHunter"
+                       Name="DesktopShortcut"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>
