@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*"
+           Name="BigFileHunter"
+           Language="1033"
+           Version="!(bind.FileVersion.BigFileHunter.exe)"
+           Manufacturer="BigFileHunter"
+           UpgradeCode="YOUR-GUID-HERE-GENERATE-NEW-GUID">
+
+    <!-- IMPORTANT: Replace YOUR-GUID-HERE-GENERATE-NEW-GUID with a real GUID -->
+    <!-- Generate one using: powershell -Command "[Guid]::NewGuid()" -->
+    <!-- This GUID must remain the same across all versions of your application -->
+
+    <Package InstallerVersion="200"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Platform="$(var.Platform)" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of BigFileHunter is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Installation directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="BigFileHunter" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="BigFileHunter"/>
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <!-- Files and components to install -->
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- Main executable and all dependencies -->
+      <Component Id="MainExecutable" Guid="*">
+        <File Id="BigFileHunterExe"
+              Source="$(var.BigFileHunter.TargetDir)BigFileHunter.exe"
+              KeyPath="yes"
+              Checksum="yes"/>
+
+        <!-- Start Menu Shortcut -->
+        <Shortcut Id="StartMenuShortcut"
+                  Name="BigFileHunter"
+                  Description="Scan directories to identify disk usage patterns"
+                  Target="[#BigFileHunterExe]"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Directory="ApplicationProgramsFolder" />
+
+        <!-- Desktop Shortcut -->
+        <Shortcut Id="DesktopShortcut"
+                  Name="BigFileHunter"
+                  Description="Scan directories to identify disk usage patterns"
+                  Target="[#BigFileHunterExe]"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Directory="DesktopFolder" />
+      </Component>
+
+      <!-- Include all DLL dependencies -->
+      <!-- These files will be harvested during build using WiX heat tool -->
+    </ComponentGroup>
+
+    <!-- Features for installation -->
+    <Feature Id="ProductFeature" Title="BigFileHunter" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <!-- UI Configuration -->
+    <UI>
+      <UIRef Id="WixUI_InstallDir" />
+      <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
+               Value="LaunchApplication"
+               Order="999">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+    </UI>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch BigFileHunter" />
+
+    <!-- Launch application after install -->
+    <CustomAction Id="LaunchApplication"
+                  FileKey="BigFileHunterExe"
+                  ExeCommand=""
+                  Execute="immediate"
+                  Impersonate="yes"
+                  Return="asyncNoWait" />
+
+    <!-- Uninstall shortcut from Start Menu -->
+    <Component Id="UninstallShortcut" Guid="*" Directory="ApplicationProgramsFolder">
+      <Shortcut Id="UninstallShortcut"
+                Name="Uninstall BigFileHunter"
+                Target="[SystemFolder]msiexec.exe"
+                Arguments="/x [ProductCode]"
+                Description="Uninstall BigFileHunter" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU"
+                     Key="Software\BigFileHunter"
+                     Name="installed"
+                     Type="integer"
+                     Value="1"
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Add uninstall component to feature -->
+    <Feature Id="ProductFeature" Title="BigFileHunter" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="UninstallShortcut" />
+    </Feature>
+  </Product>
+</Wix>

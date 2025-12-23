@@ -11,6 +11,7 @@ namespace BigFileHunter.ViewModels;
 public class MainWindowViewModel : INotifyPropertyChanged
 {
     private readonly ScanService _scanService;
+    private readonly UpdateViewModel _updateViewModel;
     private string _selectedFolderPath = string.Empty;
     private bool _isScanning;
     private string _statusMessage = "就绪";
@@ -22,8 +23,15 @@ public class MainWindowViewModel : INotifyPropertyChanged
         _scanService = new ScanService();
         RootNodes = new ObservableCollection<FolderNode>();
 
+        // Initialize update checker
+        _updateViewModel = new UpdateViewModel();
+
         BrowseFolderCommand = new RelayCommand(BrowseFolder);
         StartScanCommand = new RelayCommand(StartScan, () => CanStartScan);
+        CheckForUpdatesCommand = new RelayCommand(async () => await CheckForUpdates());
+
+        // Start automatic update checks (runs in background)
+        _updateViewModel.StartAutomaticallyCheckingForUpdates();
     }
 
     public void SetOwnerWindow(Window window)
@@ -82,6 +90,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
     public ICommand BrowseFolderCommand { get; }
     public ICommand StartScanCommand { get; }
+    public ICommand CheckForUpdatesCommand { get; }
 
     private async void BrowseFolder()
     {
@@ -145,6 +154,18 @@ public class MainWindowViewModel : INotifyPropertyChanged
         finally
         {
             IsScanning = false;
+        }
+    }
+
+    private async Task CheckForUpdates()
+    {
+        try
+        {
+            await _updateViewModel.CheckForUpdatesAsync(showUI: true);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"检查更新失败: {ex.Message}";
         }
     }
 

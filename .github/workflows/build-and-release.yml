@@ -1,0 +1,122 @@
+name: Build Windows MSI Installers
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+env:
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  build-windows:
+    name: Build Windows Installers
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Get version
+      id: get_version
+      shell: pwsh
+      run: |
+        if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+          $version = '${{ github.event.inputs.version }}'
+        } else {
+          $version = '${{ github.ref_name }}' -replace 'v', ''
+        }
+        Write-Output "::set-output name=version::$version"
+
+    - name: Restore dependencies
+      run: dotnet restore BigFileHunter.csproj
+
+    - name: Build solution
+      run: dotnet build BigFileHunter.csproj -c Release -p:Version=${{ steps.get_version.outputs.version }}
+
+    - name: Publish for Windows (x64)
+      run: |
+        dotnet publish BigFileHunter.csproj -c Release -r win-x64 --self-contained -o ./publish/win-x64 -p:Version=${{ steps.get_version.outputs.version }}
+
+    - name: Publish for Windows (x86)
+      run: |
+        dotnet publish BigFileHunter.csproj -c Release -r win-x86 --self-contained -o ./publish/win-x86 -p:Version=${{ steps.get_version.outputs.version }}
+
+    - name: Publish for Windows (ARM64)
+      run: |
+        dotnet publish BigFileHunter.csproj -c Release -r win-arm64 --self-contained -o ./publish/win-arm64 -p:Version=${{ steps.get_version.outputs.version }}
+
+    - name: Create artifacts directory
+      run: mkdir ./artifacts
+
+    - name: Install WiX Toolset v4
+      run: dotnet tool install --global wix --version 4.0.0
+
+    - name: Build MSI for x64
+      shell: pwsh
+      run: |
+        wix build ./BigFileHunter.Setup/Package.wxs ./BigFileHunter.Setup/Files.wxs `
+          -arch x64 `
+          -bindpath ./publish/win-x64 `
+          -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-x64.msi `
+          -dVersion=${{ steps.get_version.outputs.version }} `
+          -dPublishPath=./publish/win-x64
+
+    - name: Build MSI for x86
+      shell: pwsh
+      run: |
+        wix build ./BigFileHunter.Setup/Package.wxs ./BigFileHunter.Setup/Files.wxs `
+          -arch x86 `
+          -bindpath ./publish/win-x86 `
+          -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-x86.msi `
+          -dVersion=${{ steps.get_version.outputs.version }} `
+          -dPublishPath=./publish/win-x86
+
+    - name: Build MSI for ARM64
+      shell: pwsh
+      run: |
+        wix build ./BigFileHunter.Setup/Package.wxs ./BigFileHunter.Setup/Files.wxs `
+          -arch arm64 `
+          -bindpath ./publish/win-arm64 `
+          -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-arm64.msi `
+          -dVersion=${{ steps.get_version.outputs.version }} `
+          -dPublishPath=./publish/win-arm64
+
+    - name: Create ZIP archives (x64)
+      run: Compress-Archive -Path ./publish/win-x64/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-x64.zip
+
+    - name: Create ZIP archives (x86)
+      run: Compress-Archive -Path ./publish/win-x86/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-x86.zip
+
+    - name: Create ZIP archives (ARM64)
+      run: Compress-Archive -Path ./publish/win-arm64/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-arm64.zip
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-release-${{ steps.get_version.outputs.version }}
+        path: ./artifacts/*
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./artifacts/*.msi
+          ./artifacts/*.zip
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
