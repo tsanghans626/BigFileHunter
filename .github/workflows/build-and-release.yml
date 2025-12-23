@@ -70,8 +70,8 @@ jobs:
           -arch x64 `
           -bindpath ./publish/win-x64 `
           -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-x64.msi `
-          -dVersion=${{ steps.get_version.outputs.version }} `
-          -dPublishPath=./publish/win-x64
+          -preprocessor Version=${{ steps.get_version.outputs.version }} `
+          -preprocessor PublishPath=./publish/win-x64
 
     - name: Build MSI for x86
       shell: pwsh
@@ -80,8 +80,8 @@ jobs:
           -arch x86 `
           -bindpath ./publish/win-x86 `
           -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-x86.msi `
-          -dVersion=${{ steps.get_version.outputs.version }} `
-          -dPublishPath=./publish/win-x86
+          -preprocessor Version=${{ steps.get_version.outputs.version }} `
+          -preprocessor PublishPath=./publish/win-x86
 
     - name: Build MSI for ARM64
       shell: pwsh
@@ -90,8 +90,8 @@ jobs:
           -arch arm64 `
           -bindpath ./publish/win-arm64 `
           -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-arm64.msi `
-          -dVersion=${{ steps.get_version.outputs.version }} `
-          -dPublishPath=./publish/win-arm64
+          -preprocessor Version=${{ steps.get_version.outputs.version }} `
+          -preprocessor PublishPath=./publish/win-arm64
 
     - name: Create ZIP archives (x64)
       run: Compress-Archive -Path ./publish/win-x64/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-x64.zip
