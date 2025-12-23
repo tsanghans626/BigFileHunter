@@ -4,9 +4,6 @@
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="MainExecutable" Guid="*">
         <File Source="$(var.PublishPath)\BigFileHunter.exe" KeyPath="yes" />
-        <Files Source="$(var.PublishPath)\*.dll" />
-        <Files Source="$(var.PublishPath)\*.json" />
-        <Files Source="$(var.PublishPath)\*.pdb" />
       </Component>
     </ComponentGroup>
   </Fragment>
