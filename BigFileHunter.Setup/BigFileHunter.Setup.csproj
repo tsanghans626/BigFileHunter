@@ -1,10 +1,11 @@
-<Project Sdk="WixToolset.Sdk/4.0.0">
+<Project Sdk="WixToolset.Sdk/5.0.2">
   <PropertyGroup>
     <OutputType>Package</OutputType>
     <Nullable>enable</Nullable>
     <Platforms>x64;x86;ARM64</Platforms>
     <Version>1.0.0</Version>
     <PublishPath>..\publish\win-x64\</PublishPath>
+    <DefineConstants>Version=$(Version)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- WiX Toolset v4 UI extension -->
-    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.0" />
+    <!-- WiX Toolset v5 UI extension -->
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- BindPath for file harvesting -->
+    <BindPath Include="$(PublishPath)" BindName="PublishPath" />
   </ItemGroup>
 </Project>

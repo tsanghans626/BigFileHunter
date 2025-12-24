@@ -2,10 +2,15 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <ComponentGroupRef Id="GeneratedComponents" />
-      <Component Id="MainExecutable" Guid="*">
+      <!-- 使用 Files 元素收集所有文件，排除主程序 -->
+      <Files Include="!(bindpath.PublishPath)\**">
+        <Exclude Files="!(bindpath.PublishPath)\BigFileHunter.exe" />
+      </Files>
+
+      <!-- 主程序单独定义（用于快捷方式等） -->
+      <Component Id="MainExecutable" Guid="*" >
         <File Id="BigFileHunter.exe"
-              Source="$(var.PublishPath)\BigFileHunter.exe"
+              Source="!(bindpath.PublishPath)\BigFileHunter.exe"
               KeyPath="yes" />
       </Component>
     </ComponentGroup>
@@ -14,7 +19,7 @@
   <Fragment>
     <ComponentGroup Id="ShortcutComponents">
       <!-- Start Menu Shortcut -->
-      <Component Id="StartMenuShortcut" Guid="*" Directory="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcut" Guid="*" Directory="ApplicationProgramsFolder" >
         <Shortcut Id="StartMenuShortcut"
                   Name="BigFileHunter"
                   Description="Scan directories to identify disk usage patterns"
@@ -30,7 +35,7 @@
       </Component>
 
       <!-- Desktop Shortcut -->
-      <Component Id="DesktopShortcut" Guid="*" Directory="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="*" Directory="DesktopFolder" >
         <Shortcut Id="DesktopShortcut"
                   Name="BigFileHunter"
                   Description="Scan directories to identify disk usage patterns"
@@ -45,7 +50,7 @@
       </Component>
 
       <!-- Uninstall Shortcut -->
-      <Component Id="UninstallShortcut" Guid="*" Directory="ApplicationProgramsFolder">
+      <Component Id="UninstallShortcut" Guid="*" Directory="ApplicationProgramsFolder" >
         <Shortcut Id="UninstallShortcut"
                   Name="Uninstall BigFileHunter"
                   Description="Remove BigFileHunter from your computer"

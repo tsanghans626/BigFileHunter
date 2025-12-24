@@ -18,9 +18,8 @@
     <!-- Add MajorUpgrade for version handling -->
     <MajorUpgrade DowngradeErrorMessage="A newer version of BigFileHunter is already installed." />
 
-    <!-- Installation directory structure - use ProgramFilesFolder for all arch -->
-    <!-- WiX v4 automatically handles architecture when -arch is specified -->
-    <StandardDirectory Id="ProgramFilesFolder">
+    <!-- Installation directory structure - use ProgramFiles64Folder for x64 builds -->
+    <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="BigFileHunter" />
     </StandardDirectory>
 
