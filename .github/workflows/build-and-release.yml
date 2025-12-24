@@ -72,13 +72,13 @@ jobs:
       run: wix extension add WixToolset.UI.wixext/5.0.2
 
     - name: Build MSI for x64
-      run: dotnet build BigFileHunter.Setup/BigFileHunter.Setup.csproj -c Release -p:Platform=x64 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishPath=./publish/win-x64/
+      run: dotnet build BigFileHunter.Setup/BigFileHunter.Setup.csproj -c Release -p:Platform=x64 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishPath=../publish/win-x64/
 
     - name: Build MSI for x86
-      run: dotnet build BigFileHunter.Setup/BigFileHunter.Setup.csproj -c Release -p:Platform=x86 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishPath=./publish/win-x86/
+      run: dotnet build BigFileHunter.Setup/BigFileHunter.Setup.csproj -c Release -p:Platform=x86 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishPath=../publish/win-x86/
 
     - name: Build MSI for ARM64
-      run: dotnet build BigFileHunter.Setup/BigFileHunter.Setup.csproj -c Release -p:Platform=ARM64 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishPath=./publish/win-arm64/
+      run: dotnet build BigFileHunter.Setup/BigFileHunter.Setup.csproj -c Release -p:Platform=ARM64 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishPath=../publish/win-arm64/
 
     - name: Collect MSI artifacts
       run: |
