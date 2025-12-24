@@ -82,7 +82,7 @@ jobs:
 
     - name: Collect MSI artifacts
       run: |
-        mkdir ./artifacts
+        mkdir -Force ./artifacts
         copy BigFileHunter.Setup\bin\x64\Release\*.msi .\artifacts\
         copy BigFileHunter.Setup\bin\x86\Release\*.msi .\artifacts\
         copy BigFileHunter.Setup\bin\ARM64\Release\*.msi .\artifacts\
