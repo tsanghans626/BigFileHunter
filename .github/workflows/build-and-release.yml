@@ -113,43 +113,8 @@ jobs:
           }
         }
 
-        # Generate appcast.xml
-        $appcast = @'
-<?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
-    <channel>
-        <title>BigFileHunter</title>
-        <link>https://tsanghans626.github.io/BigFileHunter/updates/appcast.xml</link>
-        <description>BigFileHunter - Scan directories to identify disk usage patterns</description>
-        <language>en</language>
-'@
-
-        foreach ($arch in $architectures) {
-          $msi = ".\artifacts\BigFileHunter-$version-$arch.msi"
-          if (Test-Path $msi) {
-            $osMap = @{"x64"="windows-x64"; "x86"="windows-x86"; "arm64"="windows-arm64"}
-            $size = (Get-Item $msi).Length
-
-            $appcast += "        <item>
-            <title>Version $version ($arch)</title>
-            <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v$version</sparkle:releaseNotesLink>
-            <pubDate>$releaseDate</pubDate>
-            <enclosure url=`"https://github.com/tsanghans626/BigFileHunter/releases/download/v$version/BigFileHunter-$version-$arch.msi`"
-                       sparkle:version=`"$version`"
-                       sparkle:os=`"$($osMap[$arch])`"
-                       length=`"$size`"
-                       type=`"application/octet-stream`"
-                       sparkle:signature=`"$($signatures[$arch])`" />
-        </item>
-"
-          }
-        }
-
-        $appcast += "    </channel>
-</rss>"
-
-        $appcast | Out-File -FilePath ".\artifacts\appcast.xml" -Encoding UTF8
-        Write-Host "Generated appcast.xml"
+        # Generate appcast.xml using template
+        .\.github\workflows\templates\generate-appcast.ps1 -Version $version -ReleaseDate $releaseDate -Signatures $signatures -ArtifactsPath ".\artifacts"
 
         # Sign appcast.xml
         $appcastSig = netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" --private-key-override $env:SPARKLE_PRIVATE_KEY
