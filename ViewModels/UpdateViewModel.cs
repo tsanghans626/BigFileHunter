@@ -27,7 +27,7 @@ public class UpdateViewModel
     ///              netsparkle-generate-appcast --export
     /// Then add ED25519_PUBLIC_KEY to GitHub Secrets for the build workflow
     /// </summary>
-    private const string Ed25519PublicKey = "YOUR_GENERATED_ED25519_PUBLIC_KEY_BASE64_HERE";
+    private const string Ed25519PublicKey = "kq3TTDUCl573ZTqq8wDLARHOKrw6gpz9sieVd2VYQOM=";
 
     public UpdateViewModel()
     {

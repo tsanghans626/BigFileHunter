@@ -93,7 +93,7 @@ jobs:
     - name: Sign MSI packages and generate appcast
       shell: pwsh
       env:
-        SPARKLE_PRIVATE_KEY: ${{ secrets.ED25519_PRIVATE_KEY }}
+        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSIONUPDATE }}
       run: |
         $version = "${{ steps.get_version.outputs.version }}"
         $releaseDate = Get-Date -Format "r"
