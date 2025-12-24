@@ -16,6 +16,8 @@ env:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build-windows:
@@ -85,6 +87,74 @@ jobs:
         copy BigFileHunter.Setup\bin\x86\Release\*.msi .\artifacts\
         copy BigFileHunter.Setup\bin\ARM64\Release\*.msi .\artifacts\
 
+    - name: Install NetSparkle AppCastGenerator
+      run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator
+
+    - name: Sign MSI packages and generate appcast
+      shell: pwsh
+      env:
+        SPARKLE_PRIVATE_KEY: ${{ secrets.ED25519_PRIVATE_KEY }}
+      run: |
+        $version = "${{ steps.get_version.outputs.version }}"
+        $releaseDate = Get-Date -Format "r"
+
+        # Sign each MSI
+        $architectures = @("x64", "x86", "arm64")
+        $signatures = @{}
+
+        foreach ($arch in $architectures) {
+          $msi = ".\artifacts\BigFileHunter-$version-$arch.msi"
+          if (Test-Path $msi) {
+            Write-Host "Signing $msi..."
+            $sigOutput = netsparkle-generate-appcast --generate-signature $msi --private-key-override $env:SPARKLE_PRIVATE_KEY
+            $signature = ($sigOutput -split "Signature:\s*")[1].Trim()
+            $signatures[$arch] = $signature
+            Write-Host "Signature: $signature"
+          }
+        }
+
+        # Generate appcast.xml
+        $appcast = '<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>BigFileHunter</title>
+        <link>https://tsanghans626.github.io/BigFileHunter/updates/appcast.xml</link>
+        <description>BigFileHunter - Scan directories to identify disk usage patterns</description>
+        <language>en</language>
+'
+
+        foreach ($arch in $architectures) {
+          $msi = ".\artifacts\BigFileHunter-$version-$arch.msi"
+          if (Test-Path $msi) {
+            $osMap = @{"x64"="windows-x64"; "x86"="windows-x86"; "arm64"="windows-arm64"}
+            $size = (Get-Item $msi).Length
+
+            $appcast += "        <item>
+            <title>Version $version ($arch)</title>
+            <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v$version</sparkle:releaseNotesLink>
+            <pubDate>$releaseDate</pubDate>
+            <enclosure url=`"https://github.com/tsanghans626/BigFileHunter/releases/download/v$version/BigFileHunter-$version-$arch.msi`"
+                       sparkle:version=`"$version`"
+                       sparkle:os=`"$($osMap[$arch])`"
+                       length=`"$size`"
+                       type=`"application/octet-stream`"
+                       sparkle:signature=`"$($signatures[$arch])`" />
+        </item>
+"
+          }
+        }
+
+        $appcast += "    </channel>
+</rss>"
+
+        $appcast | Out-File -FilePath ".\artifacts\appcast.xml" -Encoding UTF8
+        Write-Host "Generated appcast.xml"
+
+        # Sign appcast.xml
+        $appcastSig = netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" --private-key-override $env:SPARKLE_PRIVATE_KEY
+        ($appcastSig -split "Signature:\s*")[1].Trim() | Out-File -FilePath ".\artifacts\appcast.xml.signature" -Encoding UTF8
+        Write-Host "Generated appcast.xml.signature"
+
     - name: Create ZIP archives (x64)
       run: Compress-Archive -Path ./publish/win-x64/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-x64.zip
 
@@ -98,7 +168,11 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows-release-${{ steps.get_version.outputs.version }}
-        path: ./artifacts/*
+        path: |
+          ./artifacts/*.msi
+          ./artifacts/*.zip
+          ./artifacts/appcast.xml
+          ./artifacts/appcast.xml.signature
 
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
@@ -113,3 +187,12 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Deploy appcast to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./artifacts
+        publish_branch: gh-pages
+        destination_dir: updates
+        keep_files: true

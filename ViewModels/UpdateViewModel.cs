@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using NetSparkleUpdater;
 using NetSparkleUpdater.UI.Avalonia;
+using NetSparkleUpdater.SignatureVerifiers;
+using NetSparkleUpdater.Enums;
 
 namespace BigFileHunter.ViewModels;
 
@@ -13,25 +15,33 @@ public class UpdateViewModel
 
     /// <summary>
     /// The appcast URL where update information is hosted
-    /// TODO: Replace with your actual appcast URL when hosting the file
+    /// Hosted on GitHub Pages
     /// </summary>
-    private const string AppcastUrl = "https://your-domain.com/updates/appcast.xml";
+    private const string AppcastUrl = "https://tsanghans626.github.io/BigFileHunter/updates/appcast.xml";
 
     /// <summary>
     /// Ed25519 public key for signature verification
-    /// TODO: Generate your own key pair and replace this
-    /// You can generate keys using NetSparkleUpdater's SignatureGenerator tool
+    /// IMPORTANT: Replace this with your actual public key!
+    /// Generate using: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator
+    ///              netsparkle-generate-appcast --generate-keys
+    ///              netsparkle-generate-appcast --export
+    /// Then add ED25519_PUBLIC_KEY to GitHub Secrets for the build workflow
     /// </summary>
-    private const string Ed25519PublicKey = "YOUR_ED25519_PUBLIC_KEY_HERE";
+    private const string Ed25519PublicKey = "YOUR_GENERATED_ED25519_PUBLIC_KEY_BASE64_HERE";
 
     public UpdateViewModel()
     {
-        // Initialize Sparkle updater with no signature verification (for development only)
-        // TODO: Configure proper signature verification for production
-        _sparkle = new SparkleUpdater(AppcastUrl, null)
+        // Initialize Sparkle updater with Ed25519 signature verification
+        // SecurityMode.Strict ensures both MSI file and appcast.xml signatures are verified
+        var signatureVerifier = new Ed25519Checker(
+            SecurityMode.Strict,
+            Ed25519PublicKey
+        );
+
+        _sparkle = new SparkleUpdater(AppcastUrl, signatureVerifier)
         {
             UIFactory = new UIFactory(),
-            RelaunchAfterUpdate = false
+            RelaunchAfterUpdate = false  // MSI installer will relaunch the app
         };
     }
 
