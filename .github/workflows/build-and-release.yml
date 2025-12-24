@@ -90,10 +90,21 @@ jobs:
     - name: Install NetSparkle AppCastGenerator
       run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator
 
+    - name: Verify SPARKLE_PRIVATE_KEY is configured
+      shell: pwsh
+      env:
+        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSION_UPDATE }}
+      run: |
+        if ([string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY)) {
+          Write-Error "SPARKLE_PRIVATE_KEY secret is not configured or is empty. Please set the VERSION_UPDATE secret in your repository settings."
+          exit 1
+        }
+        Write-Host "SPARKLE_PRIVATE_KEY is configured."
+
     - name: Sign MSI packages and generate appcast
       shell: pwsh
       env:
-        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSIONUPDATE }}
+        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSION_UPDATE }}
       run: |
         $version = "${{ steps.get_version.outputs.version }}"
         $releaseDate = Get-Date -Format "r"
@@ -121,22 +132,12 @@ jobs:
         ($appcastSig -split "Signature:\s*")[1].Trim() | Out-File -FilePath ".\artifacts\appcast.xml.signature" -Encoding UTF8
         Write-Host "Generated appcast.xml.signature"
 
-    - name: Create ZIP archives (x64)
-      run: Compress-Archive -Path ./publish/win-x64/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-x64.zip
-
-    - name: Create ZIP archives (x86)
-      run: Compress-Archive -Path ./publish/win-x86/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-x86.zip
-
-    - name: Create ZIP archives (ARM64)
-      run: Compress-Archive -Path ./publish/win-arm64/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-arm64.zip
-
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: windows-release-${{ steps.get_version.outputs.version }}
         path: |
           ./artifacts/*.msi
-          ./artifacts/*.zip
           ./artifacts/appcast.xml
           ./artifacts/appcast.xml.signature
 
@@ -147,7 +148,6 @@ jobs:
         tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', github.event.inputs.version) || github.ref_name }}
         files: |
           ./artifacts/*.msi
-          ./artifacts/*.zip
         generate_release_notes: true
         draft: false
         prerelease: false
