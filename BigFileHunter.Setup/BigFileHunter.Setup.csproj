@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
-    <OutputType>Bundle</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Package</OutputType>
     <Nullable>enable</Nullable>
     <Platforms>x64;x86;ARM64</Platforms>
-    <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
+    <Version>1.0.0</Version>
+    <PublishPath>..\publish\win-x64\</PublishPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,8 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- WiX Toolset v4 -->
-    <PackageReference Include="WixToolset.Core.netstandard" Version="4.0.0" />
+    <!-- WiX Toolset v4 UI extension -->
     <PackageReference Include="WixToolset.UI.wixext" Version="4.0.0" />
   </ItemGroup>
 </Project>

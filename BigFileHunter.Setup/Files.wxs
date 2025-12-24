@@ -3,7 +3,9 @@
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="MainExecutable" Guid="*">
-        <File Source="$(var.PublishPath)\BigFileHunter.exe" KeyPath="yes" />
+        <File Id="BigFileHunter.exe"
+              Source="$(var.PublishPath)\BigFileHunter.exe"
+              KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>
@@ -19,7 +21,7 @@
                   WorkingDirectory="INSTALLFOLDER" />
         <RegistryValue Root="HKCU"
                        Key="Software\BigFileHunter"
-                       Name="installed"
+                       Name="StartMenuShortcut"
                        Type="integer"
                        Value="1"
                        KeyPath="yes" />

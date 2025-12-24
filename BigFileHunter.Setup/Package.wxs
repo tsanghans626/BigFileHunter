@@ -3,12 +3,17 @@
   <Package Name="BigFileHunter"
            Manufacturer="BigFileHunter"
            Version="$(var.Version)"
-           UpgradeCode="01dde612-e825-4dd2-84bd-1a61a0f48813">
+           UpgradeCode="01dde612-e825-4dd2-84bd-1a61a0f48813"
+           Language="1033">
 
     <MediaTemplate EmbedCab="yes" />
 
-    <!-- Installation directory structure -->
-    <StandardDirectory Id="ProgramFiles64Folder">
+    <!-- Add MajorUpgrade for version handling -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of BigFileHunter is already installed." />
+
+    <!-- Installation directory structure - use ProgramFilesFolder for all arch -->
+    <!-- WiX v4 automatically handles architecture when -arch is specified -->
+    <StandardDirectory Id="ProgramFilesFolder">
       <Directory Id="INSTALLFOLDER" Name="BigFileHunter" />
     </StandardDirectory>
 
