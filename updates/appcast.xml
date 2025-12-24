@@ -7,31 +7,31 @@
         <language>en</language>        <item>
             <title>Version 1.0.1 (x64)</title>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Wed, 24 Dec 2025 07:48:06 GMT</pubDate>
+            <pubDate>Wed, 24 Dec 2025 08:40:06 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-x64.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-x64"
-                       length="39147623"
+                       length="39135335"
                        type="application/octet-stream"
                        sparkle:signature="Keys do not exist" />
         </item>        <item>
             <title>Version 1.0.1 (x86)</title>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Wed, 24 Dec 2025 07:48:06 GMT</pubDate>
+            <pubDate>Wed, 24 Dec 2025 08:40:06 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-x86.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-x86"
-                       length="35993613"
+                       length="35981325"
                        type="application/octet-stream"
                        sparkle:signature="Keys do not exist" />
         </item>        <item>
             <title>Version 1.0.1 (arm64)</title>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Wed, 24 Dec 2025 07:48:06 GMT</pubDate>
+            <pubDate>Wed, 24 Dec 2025 08:40:06 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-arm64.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-arm64"
-                       length="36485223"
+                       length="36489319"
                        type="application/octet-stream"
                        sparkle:signature="Keys do not exist" />
         </item>    </channel>
