@@ -3,9 +3,11 @@
     <OutputType>Package</OutputType>
     <Nullable>enable</Nullable>
     <Platforms>x64;x86;ARM64</Platforms>
-    <Version>1.0.0</Version>
+    <!-- Version inherited from Directory.Build.props -->
     <PublishPath>..\publish\win-x64\</PublishPath>
     <DefineConstants>Version=$(Version)</DefineConstants>
+    <!-- 临时输出名称，避免与目录冲突 -->
+    <OutputName>BigFileHunter-temp</OutputName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,4 +24,14 @@
     <!-- BindPath for file harvesting -->
     <BindPath Include="$(PublishPath)" BindName="PublishPath" />
   </ItemGroup>
+
+  <Target Name="RenameMsiWithVersion" AfterTargets="Build">
+    <!-- 在构建后重命名 MSI 文件，添加版本号和平台信息 -->
+    <Move SourceFiles="$(OutputPath)$(OutputName).msi"
+          DestinationFiles="$(OutputPath)BigFileHunter-$(Version)-$(Platform).msi" />
+    <!-- 同时重命名 wixpdb 文件 -->
+    <Move SourceFiles="$(OutputPath)$(OutputName).wixpdb"
+          DestinationFiles="$(OutputPath)BigFileHunter-$(Version)-$(Platform).wixpdb"
+          Condition="Exists('$(OutputPath)$(OutputName).wixpdb')" />
+  </Target>
 </Project>

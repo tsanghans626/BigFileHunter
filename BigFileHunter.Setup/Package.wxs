@@ -18,10 +18,16 @@
     <!-- Add MajorUpgrade for version handling -->
     <MajorUpgrade DowngradeErrorMessage="A newer version of BigFileHunter is already installed." />
 
-    <!-- Installation directory structure - use ProgramFiles64Folder for x64 builds -->
-    <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLFOLDER" Name="BigFileHunter" />
-    </StandardDirectory>
+    <!-- Installation directory structure - platform-specific -->
+    <?if $(sys.BUILDARCH) = x86 ?>
+        <StandardDirectory Id="ProgramFilesFolder">
+          <Directory Id="INSTALLFOLDER" Name="BigFileHunter" />
+        </StandardDirectory>
+    <?else ?>
+        <StandardDirectory Id="ProgramFiles64Folder">
+          <Directory Id="INSTALLFOLDER" Name="BigFileHunter" />
+        </StandardDirectory>
+    <?endif ?>
 
     <StandardDirectory Id="ProgramMenuFolder">
       <Directory Id="ApplicationProgramsFolder" Name="BigFileHunter"/>
@@ -35,4 +41,18 @@
       <ComponentGroupRef Id="ShortcutComponents" />
     </Feature>
   </Package>
+
+  <!-- Detect same version installation and block it -->
+  <Fragment>
+    <Upgrade Id="01dde612-e825-4dd2-84bd-1a61a0f48813">
+      <UpgradeVersion Minimum="$(var.Version)"
+                      Maximum="$(var.Version)"
+                      Property="SAME_VERSION_DETECTED"
+                      IncludeMinimum="yes"
+                      IncludeMaximum="yes" />
+    </Upgrade>
+
+    <Launch Condition="NOT SAME_VERSION_DETECTED"
+           Message="BigFileHunter v$(var.Version) is already installed. Please uninstall the existing version first." />
+  </Fragment>
 </Wix>

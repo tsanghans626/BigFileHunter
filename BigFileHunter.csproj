@@ -9,10 +9,9 @@
         <ApplicationManifest Condition="$([MSBuild]::IsOSPlatform('Windows'))">app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 
-        <!-- Versioning for MSI -->
-        <Version>1.0.0</Version>
-        <AssemblyVersion>1.0.0.0</AssemblyVersion>
-        <FileVersion>1.0.0.0</FileVersion>
+        <!-- Versioning for MSI (Version inherited from Directory.Build.props) -->
+        <AssemblyVersion>1.0.1.0</AssemblyVersion>
+        <FileVersion>1.0.1.0</FileVersion>
         <Company>BigFileHunter</Company>
         <Product>BigFileHunter</Product>
         <Description>Scan directories to identify disk usage patterns</Description>
