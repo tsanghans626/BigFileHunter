@@ -5,3 +5,7 @@ riderModule.iml
 /_ReSharper.Caches/
 publish/
 artifacts/
+
+# Generated WiX files
+BigFileHunter.Setup/FilesGenerated.*.wxs
+.wix

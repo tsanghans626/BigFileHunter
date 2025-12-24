@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="BigFileHunter"
            Manufacturer="BigFileHunter"
            Version="$(var.Version)"
@@ -7,6 +8,12 @@
            Language="1033">
 
     <MediaTemplate EmbedCab="yes" />
+
+    <!-- Add UI for installation (disabled for local builds, enabled in GitHub workflow) -->
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <!-- UI enabled for local builds (requires WixToolset.UI.wixext) -->
+    <ui:WixUI Id="WixUI_InstallDir" />
 
     <!-- Add MajorUpgrade for version handling -->
     <MajorUpgrade DowngradeErrorMessage="A newer version of BigFileHunter is already installed." />

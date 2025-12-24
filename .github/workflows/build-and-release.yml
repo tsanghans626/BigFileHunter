@@ -50,15 +50,15 @@ jobs:
 
     - name: Publish for Windows (x64)
       run: |
-        dotnet publish BigFileHunter.csproj -c Release -r win-x64 --self-contained -o ./publish/win-x64 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish BigFileHunter.csproj -c Release -r win-x64 --self-contained -o ./publish/win-x64 -p:Version=${{ steps.get_version.outputs.version }}
 
     - name: Publish for Windows (x86)
       run: |
-        dotnet publish BigFileHunter.csproj -c Release -r win-x86 --self-contained -o ./publish/win-x86 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish BigFileHunter.csproj -c Release -r win-x86 --self-contained -o ./publish/win-x86 -p:Version=${{ steps.get_version.outputs.version }}
 
     - name: Publish for Windows (ARM64)
       run: |
-        dotnet publish BigFileHunter.csproj -c Release -r win-arm64 --self-contained -o ./publish/win-arm64 -p:Version=${{ steps.get_version.outputs.version }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish BigFileHunter.csproj -c Release -r win-arm64 --self-contained -o ./publish/win-arm64 -p:Version=${{ steps.get_version.outputs.version }}
 
     - name: Create artifacts directory
       run: mkdir ./artifacts
@@ -66,35 +66,119 @@ jobs:
     - name: Install WiX Toolset v4
       run: dotnet tool install --global wix --version 4.0.0
 
+    - name: Install WiX UI extension
+      run: wix extension add WixToolset.UI.wixext/4.0.0
+
+    - name: Generate WiX file list for x64
+      shell: pwsh
+      run: |
+        $files = Get-ChildItem -Path "./publish/win-x64" -File | Where-Object { $_.Name -ne "BigFileHunter.exe" }
+        $writer = [System.IO.StreamWriter]::new("./BigFileHunter.Setup/FilesGenerated.x64.wxs", $false, [System.Text.Encoding]::UTF8)
+        $writer.WriteLine('<?xml version="1.0" encoding="UTF-8"?>')
+        $writer.WriteLine('<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">')
+        $writer.WriteLine('  <Fragment>')
+        $writer.WriteLine('    <ComponentGroup Id="GeneratedComponents" Directory="INSTALLFOLDER">')
+        $componentId = 1
+        foreach ($file in $files) {
+          $fileId = "file_" + ($file.Name -replace '[^\w\d.]', '_')
+          $fileName = $file.Name
+          $writer.WriteLine("      <Component Id=`"GeneratedFile$componentId`" Guid=`"*`">")
+          $writer.WriteLine("        <File Id=`"$fileId`" Source=`"`$(var.PublishPath)\$fileName`" />")
+          $writer.WriteLine("      </Component>")
+          $componentId++
+        }
+        $writer.WriteLine('    </ComponentGroup>')
+        $writer.WriteLine('  </Fragment>')
+        $writer.WriteLine('</Wix>')
+        $writer.Dispose()
+        Write-Host "Generated FilesGenerated.x64.wxs with $($files.Count) files"
+
+    - name: Generate WiX file list for x86
+      shell: pwsh
+      run: |
+        $files = Get-ChildItem -Path "./publish/win-x86" -File | Where-Object { $_.Name -ne "BigFileHunter.exe" }
+        $writer = [System.IO.StreamWriter]::new("./BigFileHunter.Setup/FilesGenerated.x86.wxs", $false, [System.Text.Encoding]::UTF8)
+        $writer.WriteLine('<?xml version="1.0" encoding="UTF-8"?>')
+        $writer.WriteLine('<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">')
+        $writer.WriteLine('  <Fragment>')
+        $writer.WriteLine('    <ComponentGroup Id="GeneratedComponents" Directory="INSTALLFOLDER">')
+        $componentId = 1
+        foreach ($file in $files) {
+          $fileId = "file_" + ($file.Name -replace '[^\w\d.]', '_')
+          $fileName = $file.Name
+          $writer.WriteLine("      <Component Id=`"GeneratedFile$componentId`" Guid=`"*`">")
+          $writer.WriteLine("        <File Id=`"$fileId`" Source=`"`$(var.PublishPath)\$fileName`" />")
+          $writer.WriteLine("      </Component>")
+          $componentId++
+        }
+        $writer.WriteLine('    </ComponentGroup>')
+        $writer.WriteLine('  </Fragment>')
+        $writer.WriteLine('</Wix>')
+        $writer.Dispose()
+        Write-Host "Generated FilesGenerated.x86.wxs with $($files.Count) files"
+
+    - name: Generate WiX file list for ARM64
+      shell: pwsh
+      run: |
+        $files = Get-ChildItem -Path "./publish/win-arm64" -File | Where-Object { $_.Name -ne "BigFileHunter.exe" }
+        $writer = [System.IO.StreamWriter]::new("./BigFileHunter.Setup/FilesGenerated.arm64.wxs", $false, [System.Text.Encoding]::UTF8)
+        $writer.WriteLine('<?xml version="1.0" encoding="UTF-8"?>')
+        $writer.WriteLine('<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">')
+        $writer.WriteLine('  <Fragment>')
+        $writer.WriteLine('    <ComponentGroup Id="GeneratedComponents" Directory="INSTALLFOLDER">')
+        $componentId = 1
+        foreach ($file in $files) {
+          $fileId = "file_" + ($file.Name -replace '[^\w\d.]', '_')
+          $fileName = $file.Name
+          $writer.WriteLine("      <Component Id=`"GeneratedFile$componentId`" Guid=`"*`">")
+          $writer.WriteLine("        <File Id=`"$fileId`" Source=`"`$(var.PublishPath)\$fileName`" />")
+          $writer.WriteLine("      </Component>")
+          $componentId++
+        }
+        $writer.WriteLine('    </ComponentGroup>')
+        $writer.WriteLine('  </Fragment>')
+        $writer.WriteLine('</Wix>')
+        $writer.Dispose()
+        Write-Host "Generated FilesGenerated.arm64.wxs with $($files.Count) files"
+
     - name: Build MSI for x64
       shell: pwsh
       run: |
-        wix build ./BigFileHunter.Setup/Package.wxs ./BigFileHunter.Setup/Files.wxs `
+        wix build ./BigFileHunter.Setup/Package.wxs `
+          ./BigFileHunter.Setup/Files.wxs `
+          ./BigFileHunter.Setup/FilesGenerated.x64.wxs `
           -arch x64 `
           -bindpath ./publish/win-x64 `
           -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-x64.msi `
           -d Version=${{ steps.get_version.outputs.version }} `
-          -d PublishPath=./publish/win-x64
+          -d PublishPath=./publish/win-x64 `
+          -ext WixToolset.UI.wixext
 
     - name: Build MSI for x86
       shell: pwsh
       run: |
-        wix build ./BigFileHunter.Setup/Package.wxs ./BigFileHunter.Setup/Files.wxs `
+        wix build ./BigFileHunter.Setup/Package.wxs `
+          ./BigFileHunter.Setup/Files.wxs `
+          ./BigFileHunter.Setup/FilesGenerated.x86.wxs `
           -arch x86 `
           -bindpath ./publish/win-x86 `
           -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-x86.msi `
           -d Version=${{ steps.get_version.outputs.version }} `
-          -d PublishPath=./publish/win-x86
+          -d PublishPath=./publish/win-x86 `
+          -ext WixToolset.UI.wixext
 
     - name: Build MSI for ARM64
       shell: pwsh
       run: |
-        wix build ./BigFileHunter.Setup/Package.wxs ./BigFileHunter.Setup/Files.wxs `
+        wix build ./BigFileHunter.Setup/Package.wxs `
+          ./BigFileHunter.Setup/Files.wxs `
+          ./BigFileHunter.Setup/FilesGenerated.arm64.wxs `
           -arch arm64 `
           -bindpath ./publish/win-arm64 `
           -out ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-arm64.msi `
           -d Version=${{ steps.get_version.outputs.version }} `
-          -d PublishPath=./publish/win-arm64
+          -d PublishPath=./publish/win-arm64 `
+          -ext WixToolset.UI.wixext
 
     - name: Create ZIP archives (x64)
       run: Compress-Archive -Path ./publish/win-x64/* -DestinationPath ./artifacts/BigFileHunter-${{ steps.get_version.outputs.version }}-win-x64.zip

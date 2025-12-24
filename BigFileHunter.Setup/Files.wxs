@@ -2,6 +2,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <ComponentGroupRef Id="GeneratedComponents" />
       <Component Id="MainExecutable" Guid="*">
         <File Id="BigFileHunter.exe"
               Source="$(var.PublishPath)\BigFileHunter.exe"
@@ -38,6 +39,22 @@
         <RegistryValue Root="HKCU"
                        Key="Software\BigFileHunter"
                        Name="DesktopShortcut"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+
+      <!-- Uninstall Shortcut -->
+      <Component Id="UninstallShortcut" Guid="*" Directory="ApplicationProgramsFolder">
+        <Shortcut Id="UninstallShortcut"
+                  Name="Uninstall BigFileHunter"
+                  Description="Remove BigFileHunter from your computer"
+                  Target="[SystemFolder]msiexec.exe"
+                  Arguments="/x [ProductCode]"
+                  WorkingDirectory="SystemFolder" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\BigFileHunter"
+                       Name="UninstallShortcut"
                        Type="integer"
                        Value="1"
                        KeyPath="yes" />
