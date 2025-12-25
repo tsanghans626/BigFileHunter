@@ -88,7 +88,7 @@ jobs:
         copy BigFileHunter.Setup\bin\ARM64\Release\*.msi .\artifacts\
 
     - name: Install NetSparkle AppCastGenerator
-      run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 3.0.0
+      run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 2.8.3
 
     - name: Verify NetSparkle version
       run: netsparkle-generate-appcast --version
