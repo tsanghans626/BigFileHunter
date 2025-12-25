@@ -139,6 +139,24 @@ jobs:
         $architectures = @("x64", "x86", "arm64")
         $signatures = @{}
 
+        # Pre-flight validation
+        Write-Host "=== Signing Debug Info ==="
+        Write-Host "Private key is set: $(-not [string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY))"
+        if (-not [string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY)) {
+          try {
+            $keyBytes = [System.Convert]::FromBase64String($env:SPARKLE_PRIVATE_KEY)
+            Write-Host "Private key format: Valid base64 ($($keyBytes.Length) bytes)"
+            Write-Host "Private key preview: $($env:SPARKLE_PRIVATE_KEY.Substring(0, [Math]::Min(10, $env:SPARKLE_PRIVATE_KEY.Length)))..."
+          } catch {
+            Write-Error "Private key is not valid base64: $_"
+            exit 1
+          }
+        } else {
+          Write-Error "Private key is empty or not set"
+          exit 1
+        }
+        Write-Host "==========================="
+
         foreach ($arch in $architectures) {
           $msi = ".\artifacts\BigFileHunter-$version-$arch.msi"
           if (Test-Path $msi) {
@@ -166,10 +184,10 @@ jobs:
               if ($sigOutput -match "Signature:\s*(.+)") {
                 $signature = $matches[1].Trim()
               }
-              # Pattern 2: Split approach
-              else {
+              # Pattern 2: Split approach (fallback if pattern 1 didn't match)
+              if ($null -eq $signature) {
                 $splitOutput = $sigOutput -split "Signature:\s*", 2
-                if ($splitOutput.Length -gt 1) {
+                if ($splitOutput.Length -gt 1 -and -not [string]::IsNullOrWhiteSpace($splitOutput[1])) {
                   $signature = $splitOutput[1].Trim()
                 }
               }
@@ -177,11 +195,21 @@ jobs:
               if ([string]::IsNullOrWhiteSpace($signature)) {
                 Write-Error "Signature not found in output for $msi"
                 Write-Error "Raw output: $sigOutput"
+                Write-Error "Exit code: $exitCode"
+                Write-Error "Private key length: $($env:SPARKLE_PRIVATE_KEY.Length) characters"
+                Write-Error "This usually indicates the key format is incompatible or the tool cannot access it"
                 exit 1
               }
 
+              # Validate signature format (Ed25519 signatures are 64 bytes = ~88 chars in base64)
+              if ($signature.Length -lt 80 -or $signature.Length -gt 100) {
+                Write-Warning "Signature has unusual length: $($signature.Length) characters"
+                Write-Warning "Expected ~88 characters for Ed25519 base64 signature"
+                Write-Warning "This may indicate a problem with the signing process"
+              }
+
               $signatures[$arch] = $signature
-              Write-Host "Signature extracted successfully: $signature"
+              Write-Host "Signature extracted successfully ($($signature.Length) characters)"
 
             } catch {
               Write-Error "Error signing $($msi): $_"
@@ -229,9 +257,10 @@ jobs:
           if ($appcastSig -match "Signature:\s*(.+)") {
             $signature = $matches[1].Trim()
           }
-          else {
+          # Fallback to split approach if pattern didn't match
+          if ($null -eq $signature) {
             $splitOutput = $appcastSig -split "Signature:\s*", 2
-            if ($splitOutput.Length -gt 1) {
+            if ($splitOutput.Length -gt 1 -and -not [string]::IsNullOrWhiteSpace($splitOutput[1])) {
               $signature = $splitOutput[1].Trim()
             }
           }
@@ -239,11 +268,14 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($signature)) {
             Write-Error "Signature not found in output for appcast.xml"
             Write-Error "Raw output: $appcastSig"
+            Write-Error "Exit code: $exitCode"
+            Write-Error "Private key length: $($env:SPARKLE_PRIVATE_KEY.Length) characters"
+            Write-Error "This usually indicates the key format is incompatible or the tool cannot access it"
             exit 1
           }
 
           $signature | Out-File -FilePath ".\artifacts\appcast.xml.signature" -Encoding UTF8
-          Write-Host "Generated appcast.xml.signature: $signature"
+          Write-Host "Generated appcast.xml.signature ($($signature.Length) characters)"
 
         } catch {
           Write-Error "Error signing appcast.xml: $_"
