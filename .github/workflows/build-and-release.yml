@@ -159,7 +159,7 @@ jobs:
                 exit 1
               }
             } catch {
-              Write-Error "Error signing $msi: $_"
+              Write-Error "Error signing $($msi): $_"
               exit 1
             }
           } else {
