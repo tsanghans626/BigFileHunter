@@ -7,7 +7,8 @@
       "WebSearch",
       "mcp__web-search-prime__webSearchPrime",
       "mcp__web-reader__webReader",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "mcp__zai-mcp-server__diagnose_error_screenshot"
     ]
   }
 }

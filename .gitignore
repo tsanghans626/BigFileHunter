@@ -9,3 +9,4 @@ artifacts/
 # Generated WiX files
 BigFileHunter.Setup/FilesGenerated.*.wxs
 .wix
+test-signing

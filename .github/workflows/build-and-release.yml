@@ -42,7 +42,7 @@ jobs:
         } else {
           $version = '${{ github.ref_name }}' -replace 'v', ''
         }
-        Write-Output "::set-output name=version::$version"
+        "version=$version" >> $env:GITHUB_OUTPUT
 
     - name: Restore dependencies
       run: dotnet restore BigFileHunter.csproj
@@ -88,7 +88,10 @@ jobs:
         copy BigFileHunter.Setup\bin\ARM64\Release\*.msi .\artifacts\
 
     - name: Install NetSparkle AppCastGenerator
-      run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator
+      run: dotnet tool install --global NetSparkleUpdater.Tools.AppCastGenerator --version 3.0.0
+
+    - name: Verify NetSparkle version
+      run: netsparkle-generate-appcast --version
 
     - name: Verify SPARKLE_PRIVATE_KEY is configured
       shell: pwsh
@@ -99,7 +102,25 @@ jobs:
           Write-Error "SPARKLE_PRIVATE_KEY secret is not configured or is empty. Please set the VERSION_UPDATE secret in your repository settings."
           exit 1
         }
-        Write-Host "SPARKLE_PRIVATE_KEY is configured."
+
+        # Validate private key format (Ed25519 keys are 64 bytes when decoded, ~88 chars in base64)
+        try {
+          $keyBytes = [System.Convert]::FromBase64String($env:SPARKLE_PRIVATE_KEY)
+          Write-Host "SPARKLE_PRIVATE_KEY is valid base64 (decoded length: $($keyBytes.Length) bytes)"
+
+          if ($keyBytes.Length -ne 64) {
+            Write-Warning "Private key length is $($keyBytes.Length) bytes (expected 64 bytes for Ed25519)"
+            Write-Warning "This may indicate an invalid key format"
+          } else {
+            Write-Host "SPARKLE_PRIVATE_KEY length matches Ed25519 format (64 bytes)"
+          }
+        } catch {
+          Write-Error "SPARKLE_PRIVATE_KEY is not valid base64 format: $_"
+          Write-Error "Please ensure VERSION_UPDATE secret contains a valid Ed25519 private key in base64 encoding"
+          exit 1
+        }
+
+        Write-Host "SPARKLE_PRIVATE_KEY is configured and valid."
 
     - name: Sign MSI packages and generate appcast
       shell: pwsh
@@ -108,6 +129,7 @@ jobs:
       run: |
         $version = "${{ steps.get_version.outputs.version }}"
         $releaseDate = Get-Date -Format "r"
+        $ErrorActionPreference = "Stop"
 
         # Sign each MSI
         $architectures = @("x64", "x86", "arm64")
@@ -117,20 +139,74 @@ jobs:
           $msi = ".\artifacts\BigFileHunter-$version-$arch.msi"
           if (Test-Path $msi) {
             Write-Host "Signing $msi..."
-            $sigOutput = netsparkle-generate-appcast --generate-signature $msi --private-key-override $env:SPARKLE_PRIVATE_KEY
-            $signature = ($sigOutput -split "Signature:\s*")[1].Trim()
-            $signatures[$arch] = $signature
-            Write-Host "Signature: $signature"
+            try {
+              $sigOutput = netsparkle-generate-appcast --generate-signature $msi --private-key-override $env:SPARKLE_PRIVATE_KEY 2>&1
+
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "Failed to sign $msi. Exit code: $LASTEXITCODE"
+                Write-Error "Output: $sigOutput"
+                exit 1
+              }
+
+              if ($sigOutput -match "Signature:\s*(.+)") {
+                $signature = $matches[1].Trim()
+                $signatures[$arch] = $signature
+                Write-Host "Signature: $signature"
+              } else {
+                Write-Error "Signature not found in output for $msi"
+                Write-Error "Output: $sigOutput"
+                Write-Error "This usually means the private key is invalid or not in Ed25519 format"
+                exit 1
+              }
+            } catch {
+              Write-Error "Error signing $msi: $_"
+              exit 1
+            }
+          } else {
+            Write-Error "MSI file not found: $msi"
+            exit 1
           }
         }
 
         # Generate appcast.xml using template
-        .\.github\workflows\templates\generate-appcast.ps1 -Version $version -ReleaseDate $releaseDate -Signatures $signatures -ArtifactsPath ".\artifacts"
+        Write-Host "Generating appcast.xml..."
+        try {
+          & .\.github\workflows\templates\generate-appcast.ps1 -Version $version -ReleaseDate $releaseDate -Signatures $signatures -ArtifactsPath ".\artifacts"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to generate appcast.xml"
+            exit 1
+          }
+        } catch {
+          Write-Error "Error generating appcast.xml: $_"
+          exit 1
+        }
+        Write-Host "appcast.xml generated successfully"
 
         # Sign appcast.xml
-        $appcastSig = netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" --private-key-override $env:SPARKLE_PRIVATE_KEY
-        ($appcastSig -split "Signature:\s*")[1].Trim() | Out-File -FilePath ".\artifacts\appcast.xml.signature" -Encoding UTF8
-        Write-Host "Generated appcast.xml.signature"
+        Write-Host "Signing appcast.xml..."
+        try {
+          $appcastSig = netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" --private-key-override $env:SPARKLE_PRIVATE_KEY 2>&1
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to sign appcast.xml. Exit code: $LASTEXITCODE"
+            Write-Error "Output: $appcastSig"
+            exit 1
+          }
+
+          if ($appcastSig -match "Signature:\s*(.+)") {
+            $signature = $matches[1].Trim()
+            $signature | Out-File -FilePath ".\artifacts\appcast.xml.signature" -Encoding UTF8
+            Write-Host "Generated appcast.xml.signature: $signature"
+          } else {
+            Write-Error "Signature not found in output for appcast.xml"
+            Write-Error "Output: $appcastSig"
+            Write-Error "This usually means the private key is invalid or not in Ed25519 format"
+            exit 1
+          }
+        } catch {
+          Write-Error "Error signing appcast.xml: $_"
+          exit 1
+        }
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
