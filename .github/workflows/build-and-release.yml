@@ -163,7 +163,7 @@ jobs:
             Write-Host "Signing $msi..."
             try {
               # Capture output with detailed logging
-              $sigOutput = & netsparkle-generate-appcast --generate-signature $msi --private-key-override $env:SPARKLE_PRIVATE_KEY 2>&1
+              $sigOutput = & netsparkle-generate-appcast --generate-signature $msi 2>&1
               $exitCode = $LASTEXITCODE
 
               Write-Host "Command exit code: $exitCode"
@@ -238,7 +238,7 @@ jobs:
         # Sign appcast.xml
         Write-Host "Signing appcast.xml..."
         try {
-          $appcastSig = & netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" --private-key-override $env:SPARKLE_PRIVATE_KEY 2>&1
+          $appcastSig = & netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" 2>&1
           $exitCode = $LASTEXITCODE
 
           Write-Host "Appcast signing exit code: $exitCode"
