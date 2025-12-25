@@ -96,7 +96,7 @@ jobs:
     - name: Verify SPARKLE_PRIVATE_KEY is configured
       shell: pwsh
       env:
-        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSION_UPDATE }}
+        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSION_UPDATE_PRIV }}
       run: |
         if ([string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY)) {
           Write-Error "SPARKLE_PRIVATE_KEY secret is not configured or is empty. Please set the VERSION_UPDATE secret in your repository settings."
@@ -129,12 +129,26 @@ jobs:
     - name: Create NetSparkle key directory and key file
       shell: pwsh
       env:
-        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSION_UPDATE }}
+        SPARKLE_PRIVATE_KEY: ${{ secrets.VERSION_UPDATE_PRIV }}
+        SPARKLE_PUBLIC_KEY: ${{ secrets.VERSION_UPDATE_PUB }}
       run: |
         $keyDir = "$env:LOCALAPPDATA\netsparkle"
         New-Item -ItemType Directory -Path $keyDir -Force | Out-Null
+
+        # Debug: Print first few chars of keys to verify they're read correctly
+        Write-Host "SPARKLE_PRIVATE_KEY (first 8 chars): $($env:SPARKLE_PRIVATE_KEY.Substring(0, [Math]::Min(8, $env:SPARKLE_PRIVATE_KEY.Length)))..."
+        Write-Host "SPARKLE_PRIVATE_KEY length: $($env:SPARKLE_PRIVATE_KEY.Length) characters"
+
+        if (-not [string]::IsNullOrWhiteSpace($env:SPARKLE_PUBLIC_KEY)) {
+          Write-Host "SPARKLE_PUBLIC_KEY (first 8 chars): $($env:SPARKLE_PUBLIC_KEY.Substring(0, [Math]::Min(8, $env:SPARKLE_PUBLIC_KEY.Length)))..."
+          Write-Host "SPARKLE_PUBLIC_KEY length: $($env:SPARKLE_PUBLIC_KEY.Length) characters"
+        } else {
+          Write-Warning "SPARKLE_PUBLIC_KEY is empty or null!"
+        }
+
         $env:SPARKLE_PRIVATE_KEY | Out-File -FilePath "$keyDir\NetSparkle_Ed25519.priv" -Encoding UTF8
-        Write-Host "Key file created at: $keyDir\NetSparkle_Ed25519.priv"
+        $env:SPARKLE_PUBLIC_KEY | Out-File -FilePath "$keyDir\NetSparkle_Ed25519.pub" -Encoding UTF8
+        Write-Host "Key files created at: $keyDir"
 
     - name: Sign MSI packages and generate appcast
       shell: pwsh
