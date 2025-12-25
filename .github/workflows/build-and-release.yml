@@ -126,10 +126,18 @@ jobs:
 
         Write-Host "SPARKLE_PRIVATE_KEY is configured and valid."
 
-    - name: Sign MSI packages and generate appcast
+    - name: Create NetSparkle key directory and key file
       shell: pwsh
       env:
         SPARKLE_PRIVATE_KEY: ${{ secrets.VERSION_UPDATE }}
+      run: |
+        $keyDir = "$env:LOCALAPPDATA\netsparkle"
+        New-Item -ItemType Directory -Path $keyDir -Force | Out-Null
+        $env:SPARKLE_PRIVATE_KEY | Out-File -FilePath "$keyDir\NetSparkle_Ed25519.priv" -Encoding UTF8
+        Write-Host "Key file created at: $keyDir\NetSparkle_Ed25519.priv"
+
+    - name: Sign MSI packages and generate appcast
+      shell: pwsh
       run: |
         $version = "${{ steps.get_version.outputs.version }}"
         $releaseDate = Get-Date -Format "r"
@@ -139,23 +147,13 @@ jobs:
         $architectures = @("x64", "x86", "arm64")
         $signatures = @{}
 
-        # Pre-flight validation
-        Write-Host "=== Signing Debug Info ==="
-        Write-Host "Private key is set: $(-not [string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY))"
-        if (-not [string]::IsNullOrWhiteSpace($env:SPARKLE_PRIVATE_KEY)) {
-          try {
-            $keyBytes = [System.Convert]::FromBase64String($env:SPARKLE_PRIVATE_KEY)
-            Write-Host "Private key format: Valid base64 ($($keyBytes.Length) bytes)"
-            Write-Host "Private key preview: $($env:SPARKLE_PRIVATE_KEY.Substring(0, [Math]::Min(10, $env:SPARKLE_PRIVATE_KEY.Length)))..."
-          } catch {
-            Write-Error "Private key is not valid base64: $_"
-            exit 1
-          }
-        } else {
-          Write-Error "Private key is empty or not set"
+        # Verify key file exists
+        $keyPath = "$env:LOCALAPPDATA\netsparkle\NetSparkle_Ed25519.priv"
+        if (-not (Test-Path $keyPath)) {
+          Write-Error "Key file not found at: $keyPath"
           exit 1
         }
-        Write-Host "==========================="
+        Write-Host "Key file found at: $keyPath"
 
         foreach ($arch in $architectures) {
           $msi = ".\artifacts\BigFileHunter-$version-$arch.msi"
@@ -163,7 +161,7 @@ jobs:
             Write-Host "Signing $msi..."
             try {
               # Capture output with detailed logging
-              $sigOutput = & netsparkle-generate-appcast --generate-signature $msi --private-key-override $env:SPARKLE_PRIVATE_KEY 2>&1
+              $sigOutput = & netsparkle-generate-appcast --generate-signature $msi 2>&1
               $exitCode = $LASTEXITCODE
 
               Write-Host "Command exit code: $exitCode"
@@ -238,7 +236,7 @@ jobs:
         # Sign appcast.xml
         Write-Host "Signing appcast.xml..."
         try {
-          $appcastSig = & netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" --private-key-override $env:SPARKLE_PRIVATE_KEY 2>&1
+          $appcastSig = & netsparkle-generate-appcast --generate-signature ".\artifacts\appcast.xml" 2>&1
           $exitCode = $LASTEXITCODE
 
           Write-Host "Appcast signing exit code: $exitCode"
