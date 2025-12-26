@@ -34,6 +34,15 @@ foreach ($arch in $architectures) {
 
         <item>
             <title>Version $Version ($arch)</title>
+            <link>https://github.com/tsanghans626/BigFileHunter/releases/tag/v$Version</link>
+            <description><![CDATA[
+                <h2>What's New in BigFileHunter $Version</h2>
+                <p>Thank you for using BigFileHunter!</p>
+                <h3>Recent Changes</h3>
+                <ul>
+                    <li>Check the <a href="https://github.com/tsanghans626/BigFileHunter/releases/tag/v$Version">GitHub Release</a> for detailed change notes</li>
+                </ul>
+            ]]></description>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v$Version</sparkle:releaseNotesLink>
             <pubDate>$ReleaseDate</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v$Version/BigFileHunter-$Version-$arch.msi"
