@@ -3,13 +3,13 @@ name: Build Windows MSI Installers
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*.*'  # 支持4段版本号 (如 v1.0.2.0)
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number (e.g., 1.0.0)'
+        description: 'Version number (e.g., 1.0.0.0)'
         required: true
-        default: '1.0.0'
+        default: '1.0.0.0'
 
 env:
   DOTNET_VERSION: '9.0.x'

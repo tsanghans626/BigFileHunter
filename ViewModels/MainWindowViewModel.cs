@@ -28,7 +28,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
         _updateViewModel = new UpdateViewModel();
 
         // Set current version from assembly
-        CurrentVersion = $"版本 {UpdateViewModel.CurrentVersion.ToString(3)}";
+        CurrentVersion = $"版本 {UpdateViewModel.CurrentVersion}";
 
         BrowseFolderCommand = new RelayCommand(BrowseFolder);
         StartScanCommand = new RelayCommand(StartScan, () => CanStartScan);
