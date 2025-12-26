@@ -3,7 +3,6 @@ using NetSparkleUpdater;
 using NetSparkleUpdater.UI.Avalonia;
 using NetSparkleUpdater.SignatureVerifiers;
 using NetSparkleUpdater.Enums;
-using NetSparkleUpdater.Logging;
 
 namespace BigFileHunter.ViewModels;
 
