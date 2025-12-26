@@ -31,6 +31,7 @@ foreach ($arch in $architectures) {
         $signature = $Signatures[$arch]
 
         $itemXml = @"
+
         <item>
             <title>Version $Version ($arch)</title>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v$Version</sparkle:releaseNotesLink>
