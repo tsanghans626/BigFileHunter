@@ -8,6 +8,14 @@ using Avalonia.Threading;
 
 namespace BigFileHunter.ViewModels;
 
+public enum UpdateCheckStatus
+{
+    NotChecked,
+    Checking,
+    IsLatest,
+    UpdateAvailable
+}
+
 public class MainWindowViewModel : INotifyPropertyChanged
 {
     private readonly ScanService _scanService;
@@ -18,6 +26,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
     private string _currentVersion = string.Empty;
     private int _folderCount;
     private Window? _ownerWindow;
+    private UpdateCheckStatus _updateCheckStatus = UpdateCheckStatus.NotChecked;
+    private bool _updateAvailable;
 
     public MainWindowViewModel()
     {
@@ -105,6 +115,30 @@ public class MainWindowViewModel : INotifyPropertyChanged
         }
     }
 
+    public UpdateCheckStatus UpdateCheckStatus
+    {
+        get => _updateCheckStatus;
+        set
+        {
+            if (_updateCheckStatus != value)
+            {
+                _updateCheckStatus = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(UpdateButtonText));
+            }
+        }
+    }
+
+    public string UpdateButtonText =>
+        UpdateCheckStatus switch
+        {
+            UpdateCheckStatus.NotChecked => "检查更新",
+            UpdateCheckStatus.Checking => "检查中...",
+            UpdateCheckStatus.IsLatest => "当前最新",
+            UpdateCheckStatus.UpdateAvailable => "有新版本",
+            _ => "检查更新"
+        };
+
     public ICommand BrowseFolderCommand { get; }
     public ICommand StartScanCommand { get; }
     public ICommand CheckForUpdatesCommand { get; }
@@ -176,27 +210,34 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
     private async Task CheckForUpdates()
     {
+        // If update is known to be available, show dialog directly
+        if (_updateAvailable && UpdateCheckStatus == UpdateCheckStatus.UpdateAvailable)
+        {
+            await _updateViewModel.CheckForUpdatesAsync(showUI: true);
+            return;
+        }
+
         try
         {
-            StatusMessage = "正在检查更新...";
+            UpdateCheckStatus = UpdateCheckStatus.Checking;
 
             var (updateAvailable, latestVersion, statusMessage) =
                 await _updateViewModel.CheckForUpdatesWithCallbackAsync();
 
             if (updateAvailable)
             {
-                // Show NetSparkle's built-in update dialog
-                await _updateViewModel.CheckForUpdatesAsync(showUI: true);
+                _updateAvailable = true;
+                UpdateCheckStatus = UpdateCheckStatus.UpdateAvailable;
             }
             else
             {
-                // Show custom "already latest" message
-                StatusMessage = statusMessage;
+                _updateAvailable = false;
+                UpdateCheckStatus = UpdateCheckStatus.IsLatest;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            StatusMessage = $"检查更新失败: {ex.Message}";
+            UpdateCheckStatus = UpdateCheckStatus.NotChecked;
         }
     }
 
