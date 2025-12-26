@@ -4,35 +4,65 @@
         <title>BigFileHunter</title>
         <link>https://tsanghans626.github.io/BigFileHunter/updates/appcast.xml</link>
         <description>BigFileHunter - Scan directories to identify disk usage patterns</description>
-        <language>en</language>        <item>
+        <language>en</language>
+        <item>
             <title>Version 1.0.1 (x64)</title>
+            <link>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</link>
+            <description><![CDATA[
+                <h2>What's New in BigFileHunter 1.0.1</h2>
+                <p>Thank you for using BigFileHunter!</p>
+                <h3>Recent Changes</h3>
+                <ul>
+                    <li>Check the <a href="https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1">GitHub Release</a> for detailed change notes</li>
+                </ul>
+            ]]></description>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Fri, 26 Dec 2025 03:10:16 GMT</pubDate>
+            <pubDate>Fri, 26 Dec 2025 03:53:29 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-x64.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-x64"
-                       length="39151719"
+                       length="39135335"
                        type="application/octet-stream"
-                       sparkle:signature="NGs/d049XGMhASFqPqi1JOcqsoAlHhGHkgXtc6W6eHBMN/4njxo913LFuqWWfL9hRAIh6rJANDzM5wJJXrBXBA==" />
-        </item>        <item>
+                       sparkle:signature="b0D5AFTeQeXxNQIow6Qzu/iX43gVt2Kq2dadlESGIrEGrIeXCwwq3+TFay5Cz3XDuwedt/qEhuZ0uBrmWQygCw==" />
+        </item>
+        <item>
             <title>Version 1.0.1 (x86)</title>
+            <link>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</link>
+            <description><![CDATA[
+                <h2>What's New in BigFileHunter 1.0.1</h2>
+                <p>Thank you for using BigFileHunter!</p>
+                <h3>Recent Changes</h3>
+                <ul>
+                    <li>Check the <a href="https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1">GitHub Release</a> for detailed change notes</li>
+                </ul>
+            ]]></description>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Fri, 26 Dec 2025 03:10:16 GMT</pubDate>
+            <pubDate>Fri, 26 Dec 2025 03:53:29 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-x86.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-x86"
-                       length="35973133"
+                       length="35985421"
                        type="application/octet-stream"
-                       sparkle:signature="hfTOrg9gdavaZuLVCAx/8GmssTdkRkgvYYSOuIyqtrg/smbQq6XfYisPBPO2tWwSbvw++0QgwJkk/Cf2kTB7Aw==" />
-        </item>        <item>
+                       sparkle:signature="9LTFguJZ2jji9rx5I5gKQ4Jx3W3VeHUGGGLdqA6SHHN5UcDuHKFPlt8L2G8QqjRnxpNoSqDKdNN8YfaAfJ7HDA==" />
+        </item>
+        <item>
             <title>Version 1.0.1 (arm64)</title>
+            <link>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</link>
+            <description><![CDATA[
+                <h2>What's New in BigFileHunter 1.0.1</h2>
+                <p>Thank you for using BigFileHunter!</p>
+                <h3>Recent Changes</h3>
+                <ul>
+                    <li>Check the <a href="https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1">GitHub Release</a> for detailed change notes</li>
+                </ul>
+            ]]></description>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Fri, 26 Dec 2025 03:10:16 GMT</pubDate>
+            <pubDate>Fri, 26 Dec 2025 03:53:29 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-arm64.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-arm64"
-                       length="36493415"
+                       length="36481127"
                        type="application/octet-stream"
-                       sparkle:signature="3R6y9tUXVEcRpS9V6688+syjnMLj6aafBMYvRHUANe8gGjYVbai/nMXf1yTqkqIlVcuCc64qLAzihcc+TGZcDQ==" />
+                       sparkle:signature="SgQ2e4zyyFpAFKTTLJPSJqt2uont4UfapMlhpAy5QgTSW5fZRxjUepWnPnGr1oNfOMc4z7xRhUaAUxVXfIn+Bw==" />
         </item>    </channel>
 </rss>
