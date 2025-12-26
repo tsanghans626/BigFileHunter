@@ -54,5 +54,9 @@ $appcastContent += @"
 "@
 
 $outputPath = "$ArtifactsPath\appcast.xml"
-$appcastContent | Out-File -FilePath $outputPath -Encoding UTF8
+# Use UTF-8 without BOM and LF line endings to match GitHub Pages deployed file
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+# Convert CRLF to LF for Unix-style line endings
+$appcastContentLf = $appcastContent -replace "`r`n", "`n"
+[System.IO.File]::WriteAllText($outputPath, $appcastContentLf, $utf8NoBom)
 Write-Host "Generated appcast.xml at $outputPath"
