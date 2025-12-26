@@ -1,10 +1,12 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.IO;
 using System.Threading.Tasks;
 using NetSparkleUpdater;
 using NetSparkleUpdater.UI.Avalonia;
 using NetSparkleUpdater.SignatureVerifiers;
 using NetSparkleUpdater.Enums;
+using BigFileHunter.Logging;
 
 namespace BigFileHunter.ViewModels;
 
@@ -77,7 +79,16 @@ public class UpdateViewModel
 
         string appcastUrl = GetAppcastUrl();  // Use architecture-specific appcast URL
 
-        _sparkle = new SparkleUpdater(appcastUrl, signatureVerifier)
+        // Setup logging
+        var logPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "BigFileHunter",
+            "updates.log"
+        );
+        var logger = new FileLogger(logPath);
+
+        // Use custom updater that properly handles MSI installation
+        _sparkle = new BigFileHunterSparkleUpdater(appcastUrl, signatureVerifier, logger)
         {
             UIFactory = new UIFactory(),
             RelaunchAfterUpdate = false,  // MSI installer will relaunch the app
