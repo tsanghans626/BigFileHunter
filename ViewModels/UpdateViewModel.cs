@@ -3,6 +3,7 @@ using NetSparkleUpdater;
 using NetSparkleUpdater.UI.Avalonia;
 using NetSparkleUpdater.SignatureVerifiers;
 using NetSparkleUpdater.Enums;
+using NetSparkleUpdater.Logging;
 
 namespace BigFileHunter.ViewModels;
 
@@ -41,7 +42,8 @@ public class UpdateViewModel
         _sparkle = new SparkleUpdater(AppcastUrl, signatureVerifier)
         {
             UIFactory = new UIFactory(),
-            RelaunchAfterUpdate = false  // MSI installer will relaunch the app
+            RelaunchAfterUpdate = false,  // MSI installer will relaunch the app
+            LogWriter = new LogWriter(LogWriterOutputMode.Console | LogWriterOutputMode.Trace)
         };
     }
 
