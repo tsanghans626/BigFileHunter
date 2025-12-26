@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NetSparkleUpdater;
 using NetSparkleUpdater.UI.Avalonia;
@@ -17,7 +18,36 @@ public class UpdateViewModel
     /// The appcast URL where update information is hosted
     /// Hosted on GitHub Pages
     /// </summary>
-    private const string AppcastUrl = "https://tsanghans626.github.io/BigFileHunter/updates/appcast.xml";
+    private const string BaseAppcastUrl = "https://tsanghans626.github.io/BigFileHunter/updates/";
+
+    /// <summary>
+    /// Gets the architecture-specific appcast URL for the current process.
+    /// Returns architecture-specific URLs (appcast-windows-x64.xml, etc.) for known architectures,
+    /// or falls back to the combined appcast.xml for unknown architectures.
+    /// </summary>
+    private static string GetAppcastUrl()
+    {
+        var architecture = RuntimeInformation.ProcessArchitecture;
+        string archIdentifier;
+
+        switch (architecture)
+        {
+            case Architecture.X64:
+                archIdentifier = "windows-x64";
+                break;
+            case Architecture.X86:
+                archIdentifier = "windows-x86";
+                break;
+            case Architecture.Arm64:
+                archIdentifier = "windows-arm64";
+                break;
+            default:
+                // Fallback to combined appcast for unknown architectures (backward compatibility)
+                return $"{BaseAppcastUrl}appcast.xml";
+        }
+
+        return $"{BaseAppcastUrl}appcast-{archIdentifier}.xml";
+    }
 
     /// <summary>
     /// Ed25519 public key for signature verification
@@ -38,7 +68,9 @@ public class UpdateViewModel
             Ed25519PublicKey
         );
 
-        _sparkle = new SparkleUpdater(AppcastUrl, signatureVerifier)
+        string appcastUrl = GetAppcastUrl();  // Use architecture-specific appcast URL
+
+        _sparkle = new SparkleUpdater(appcastUrl, signatureVerifier)
         {
             UIFactory = new UIFactory(),
             RelaunchAfterUpdate = false,  // MSI installer will relaunch the app

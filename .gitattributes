@@ -1,7 +1,9 @@
 # Force XML files to use LF line endings
 *.xml text eol=lf
 appcast.xml text eol=lf
+appcast-*.xml text eol=lf
 appcast.xml.signature text eol=lf
+appcast-*.xml.signature text eol=lf
 
 # Treat MSI files as binary
 *.msi binary
