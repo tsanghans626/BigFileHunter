@@ -125,7 +125,7 @@
                 Padding="20,12"
                 BorderBrush="#E0E0E0"
                 BorderThickness="0,1,0,0">
-            <Grid ColumnDefinitions="Auto,Auto,Auto">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto">
                 <TextBlock Grid.Column="0"
                           Text="列说明："
                           FontWeight="SemiBold"/>
@@ -134,6 +134,11 @@
                           Margin="10,0,30,0"/>
                 <TextBlock Grid.Column="2"
                           Text="总大小 - 包含所有子文件夹"/>
+                <TextBlock Grid.Column="4"
+                          Text="{Binding CurrentVersion}"
+                          Foreground="#888888"
+                          FontSize="12"
+                          VerticalAlignment="Center"/>
             </Grid>
         </Border>
     </Grid>

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NetSparkleUpdater;
@@ -12,6 +13,12 @@ namespace BigFileHunter.ViewModels;
 /// </summary>
 public class UpdateViewModel
 {
+    /// <summary>
+    /// Gets the current application version
+    /// </summary>
+    public static Version CurrentVersion =>
+        Assembly.GetExecutingAssembly().GetName().Version ?? new Version("1.0.0");
+
     private readonly SparkleUpdater _sparkle;
 
     /// <summary>
@@ -85,6 +92,36 @@ public class UpdateViewModel
     public async Task CheckForUpdatesAsync(bool showUI = true)
     {
         await _sparkle.CheckForUpdatesAtUserRequest(showUI);
+    }
+
+    /// <summary>
+    /// Check for updates and return status for custom UI handling
+    /// Returns tuple: (updateAvailable, latestVersion, statusMessage)
+    /// </summary>
+    public async Task<(bool UpdateAvailable, string? LatestVersion, string StatusMessage)>
+        CheckForUpdatesWithCallbackAsync()
+    {
+        try
+        {
+            // Check quietly without showing UI
+            var status = await _sparkle.CheckForUpdatesQuietly();
+
+            if (status.Updates != null && status.Updates.Count > 0)
+            {
+                // Update available - get the version info
+                var latestVersion = status.Updates[0].Version;
+                return (true, latestVersion, $"发现新版本 {latestVersion}");
+            }
+            else
+            {
+                // No updates available
+                return (false, null, "当前已是最新版本");
+            }
+        }
+        catch (Exception ex)
+        {
+            return (false, null, $"检查更新失败: {ex.Message}");
+        }
     }
 
     /// <summary>

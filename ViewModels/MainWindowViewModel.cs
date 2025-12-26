@@ -15,6 +15,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     private string _selectedFolderPath = string.Empty;
     private bool _isScanning;
     private string _statusMessage = "就绪";
+    private string _currentVersion = string.Empty;
     private int _folderCount;
     private Window? _ownerWindow;
 
@@ -25,6 +26,9 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
         // Initialize update checker
         _updateViewModel = new UpdateViewModel();
+
+        // Set current version from assembly
+        CurrentVersion = $"版本 {UpdateViewModel.CurrentVersion.ToString(3)}";
 
         BrowseFolderCommand = new RelayCommand(BrowseFolder);
         StartScanCommand = new RelayCommand(StartScan, () => CanStartScan);
@@ -87,6 +91,19 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public string FolderCountDisplay => _folderCount > 0 ? $"共 {_folderCount} 个文件夹" : string.Empty;
 
     public bool CanStartScan => !IsScanning && !string.IsNullOrEmpty(SelectedFolderPath);
+
+    public string CurrentVersion
+    {
+        get => _currentVersion;
+        set
+        {
+            if (_currentVersion != value)
+            {
+                _currentVersion = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
     public ICommand BrowseFolderCommand { get; }
     public ICommand StartScanCommand { get; }
@@ -161,7 +178,21 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         try
         {
-            await _updateViewModel.CheckForUpdatesAsync(showUI: true);
+            StatusMessage = "正在检查更新...";
+
+            var (updateAvailable, latestVersion, statusMessage) =
+                await _updateViewModel.CheckForUpdatesWithCallbackAsync();
+
+            if (updateAvailable)
+            {
+                // Show NetSparkle's built-in update dialog
+                await _updateViewModel.CheckForUpdatesAsync(showUI: true);
+            }
+            else
+            {
+                // Show custom "already latest" message
+                StatusMessage = statusMessage;
+            }
         }
         catch (Exception ex)
         {
