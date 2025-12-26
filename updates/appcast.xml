@@ -7,32 +7,32 @@
         <language>en</language>        <item>
             <title>Version 1.0.1 (x64)</title>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Thu, 25 Dec 2025 10:45:00 GMT</pubDate>
+            <pubDate>Fri, 26 Dec 2025 03:10:16 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-x64.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-x64"
-                       length="39139431"
+                       length="39151719"
                        type="application/octet-stream"
-                       sparkle:signature="INFLxFm47z6HFxE2PmQzeShl6Y102xfT0+XCtW5Yy8rNTCTojVPKKGsQhzG4BUIM6eonZBpvPGyqlKJ24pGrCw==" />
+                       sparkle:signature="NGs/d049XGMhASFqPqi1JOcqsoAlHhGHkgXtc6W6eHBMN/4njxo913LFuqWWfL9hRAIh6rJANDzM5wJJXrBXBA==" />
         </item>        <item>
             <title>Version 1.0.1 (x86)</title>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Thu, 25 Dec 2025 10:45:00 GMT</pubDate>
+            <pubDate>Fri, 26 Dec 2025 03:10:16 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-x86.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-x86"
-                       length="35993613"
+                       length="35973133"
                        type="application/octet-stream"
-                       sparkle:signature="EnS7UWH9bA+qQKpni3Fp9xrUKpIymt8190guaCuS0OdSX7weG03RDne1Xx04cCuPEUFFwpcUgKTyONvENggNBw==" />
+                       sparkle:signature="hfTOrg9gdavaZuLVCAx/8GmssTdkRkgvYYSOuIyqtrg/smbQq6XfYisPBPO2tWwSbvw++0QgwJkk/Cf2kTB7Aw==" />
         </item>        <item>
             <title>Version 1.0.1 (arm64)</title>
             <sparkle:releaseNotesLink>https://github.com/tsanghans626/BigFileHunter/releases/tag/v1.0.1</sparkle:releaseNotesLink>
-            <pubDate>Thu, 25 Dec 2025 10:45:00 GMT</pubDate>
+            <pubDate>Fri, 26 Dec 2025 03:10:16 GMT</pubDate>
             <enclosure url="https://github.com/tsanghans626/BigFileHunter/releases/download/v1.0.1/BigFileHunter-1.0.1-arm64.msi"
                        sparkle:version="1.0.1"
                        sparkle:os="windows-arm64"
-                       length="36485223"
+                       length="36493415"
                        type="application/octet-stream"
-                       sparkle:signature="fLi8UKJi0AkPeFwXSCX4kgPVKHMYdgoEtjN4+1+00DQHoDSlgG+t7v7cDaC4mEmVfqOrgajnQYgs5DemASu1Dg==" />
+                       sparkle:signature="3R6y9tUXVEcRpS9V6688+syjnMLj6aafBMYvRHUANe8gGjYVbai/nMXf1yTqkqIlVcuCc64qLAzihcc+TGZcDQ==" />
         </item>    </channel>
 </rss>
